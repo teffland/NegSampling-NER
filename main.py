@@ -13,7 +13,10 @@ from utils import corpus_to_iterator, Procedure
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    # New
+    parser.add_argument("--model-name", type=str)
 
+    # Old
     parser.add_argument("--data_dir", "-dd", type=str, required=True)
     parser.add_argument("--check_dir", "-cd", type=str, required=True)
     parser.add_argument("--resource_dir", "-rd", type=str, required=True)
@@ -21,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("--epoch_num", "-en", type=int, default=40)
     parser.add_argument("--batch_size", "-bs", type=int, default=16)
 
-    parser.add_argument("--negative_rate", "-nr", type=float, default=0.7)
+    parser.add_argument("--negative_rate", "-nr", type=float, default=0.35)
     parser.add_argument("--warmup_proportion", "-wp", type=float, default=0.1)
     parser.add_argument("--hidden_dim", "-hd", type=int, default=256)
     parser.add_argument("--dropout_rate", "-dr", type=float, default=0.1)
@@ -30,24 +33,33 @@ if __name__ == "__main__":
     print(json.dumps(args.__dict__, indent=True), end="\n\n")
 
     fix_random_seed(args.random_state)
-    lexical_vocab = UnitAlphabet(os.path.join(args.resource_dir, "bert-base-cased", "vocab.txt"))
+    lexical_vocab = UnitAlphabet(args.model_name)
     label_vocab = LabelAlphabet()
 
     train_loader = corpus_to_iterator(os.path.join(args.data_dir, "train.json"), args.batch_size, True, label_vocab)
     dev_loader = corpus_to_iterator(os.path.join(args.data_dir, "dev.json"), args.batch_size, False)
     test_loader = corpus_to_iterator(os.path.join(args.data_dir, "test.json"), args.batch_size, False)
 
-    bert_path = os.path.join(args.resource_dir, "bert-base-cased", "model.pt")
-    model = PhraseClassifier(lexical_vocab, label_vocab, args.hidden_dim,
-                             args.dropout_rate, args.negative_rate, bert_path)
+    # bert_path = os.path.join(args.resource_dir, "bert-base-cased", "model.pt")
+    bert_path = args.model_name
+    model = PhraseClassifier(
+        lexical_vocab, label_vocab, args.hidden_dim, args.dropout_rate, args.negative_rate, bert_path
+    )
     model = model.cuda() if torch.cuda.is_available() else model.cpu()
 
+    # We use the same underlying bert model and hyperparameters to facilitate comparison
+    # These are:
+    # * different underlying bert models
+    # * learning rate 1e-5 -> 2e-5
+    # * no weight decay for bert entirely
     all_parameters = list(model.named_parameters())
-    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-    grouped_param = [{'params': [p for n, p in all_parameters if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-                     {'params': [p for n, p in all_parameters if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+    no_decay = ["bias", "_encoder"]  # "LayerNorm.bias", "LayerNorm.weight"]
+    grouped_param = [
+        {"params": [p for n, p in all_parameters if not any(nd in n for nd in no_decay)], "weight_decay": 0.01},
+        {"params": [p for n, p in all_parameters if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
+    ]
     total_steps = int(len(train_loader) * (args.epoch_num + 1))
-    optimizer = BertAdam(grouped_param, lr=1e-5, warmup=args.warmup_proportion, t_total=total_steps)
+    optimizer = BertAdam(grouped_param, lr=2e-5, warmup=args.warmup_proportion, t_total=total_steps)
 
     if not os.path.exists(args.check_dir):
         os.makedirs(args.check_dir)

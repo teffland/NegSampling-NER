@@ -1,23 +1,28 @@
+from typing import *
+
 import numpy as np
 
 import torch
 from torch import nn
-from pytorch_pretrained_bert import BertModel
+from transformers import AutoModel
+from collections import defaultdict
 
 from misc import flat_list
 from misc import iterative_support, conflict_judge
-from utils import UnitAlphabet, LabelAlphabet
+from utils import UnitAlphabet, LabelAlphabet, BatchTooLargeException, BatchTooLongException
+
 
 
 class PhraseClassifier(nn.Module):
-
-    def __init__(self,
-                 lexical_vocab: UnitAlphabet,
-                 label_vocab: LabelAlphabet,
-                 hidden_dim: int,
-                 dropout_rate: float,
-                 neg_rate: float,
-                 bert_path: str):
+    def __init__(
+        self,
+        lexical_vocab: UnitAlphabet,
+        label_vocab: LabelAlphabet,
+        hidden_dim: int,
+        dropout_rate: float,
+        neg_rate: float,
+        bert_path: str,
+    ):
         super(PhraseClassifier, self).__init__()
 
         self._lexical_vocab = lexical_vocab
@@ -29,41 +34,126 @@ class PhraseClassifier(nn.Module):
         self._criterion = nn.NLLLoss()
 
     def forward(self, var_h, **kwargs):
+        
         con_repr = self._encoder(var_h, kwargs["mask_mat"], kwargs["starts"])
 
         batch_size, token_num, hidden_dim = con_repr.size()
+        # print(f'B, L, H: {batch_size}, {token_num}, {hidden_dim}')
         ext_row = con_repr.unsqueeze(2).expand(batch_size, token_num, token_num, hidden_dim)
         ext_column = con_repr.unsqueeze(1).expand_as(ext_row)
         table = torch.cat([ext_row, ext_column, ext_row - ext_column, ext_row * ext_column], dim=-1)
         return self._classifier(table)
 
+    def _align_bpes(self, tokens: List[str], offset_mapping: List[Tuple[int, int]]):
+        # From transformers_converter
+        """ Return a multi-mapping from token indices to subword indices"""
+        # print("ALIGN")
+        # print(f"Tokens: {tokens}")
+        # print(f"Offset mapping: {offset_mapping}")
+        # Mapping from char idxs in joined text str to original tokens
+        charidx2tokidx = {}
+        for i, t in enumerate(tokens):
+            offset = len(charidx2tokidx) + i
+            for k in range(len(t)):
+                charidx2tokidx[offset + k] = i
+
+        # print(f"char2tok", charidx2tokidx)
+
+        # Mapping derived from the offset mapping to go brom token idx to bpe idx
+        tokidx2bpeidx = defaultdict(list)
+        for i, (s, e) in enumerate(offset_mapping):
+            # print(i, (s, e))
+            if s == e:
+                continue  # skip special tokens
+            # if s > max(charidx2tokidx.keys()):
+            #     break
+            else:
+                tokidx = charidx2tokidx[s]
+                tokidx2bpeidx[tokidx].append(i)
+        return tokidx2bpeidx
+
     def _pre_process_input(self, utterances):
+        """ Edited to use AutoModel/AutoTokenizer and split long sentences. 
+        The original paper only worked on datasets where sentences were always short enough/in english,
+        so they didn't need this.
+        """
+
+        # lengths = [len(s) for s in utterances]
+        # max_len = max(lengths)
+        # pieces = iterative_support(self._lexical_vocab.tokenize, utterances)
+        # print("pieces", pieces)
+        # units, positions = [], []
+
+        # for tokens in pieces:
+        #     units.append(flat_list(tokens))
+        #     cum_list = np.cumsum([len(p) for p in tokens]).tolist()
+        #     positions.append([0] + cum_list[:-1])
+
+        # sizes = [len(u) for u in units]
+        # max_size = max(sizes)
+        # cls_sign = self._lexical_vocab.CLS_SIGN
+        # sep_sign = self._lexical_vocab.SEP_SIGN
+        # pad_sign = self._lexical_vocab.PAD_SIGN
+        # pad_unit = [[cls_sign] + s + [sep_sign] + [pad_sign] * (max_size - len(s)) for s in units]
+        # starts = [[ln + 1 for ln in u] + [max_size + 1] * (max_len - len(u)) for u in positions]
+
+        # var_unit = torch.LongTensor([self._lexical_vocab.index(u) for u in pad_unit])
+        # attn_mask = torch.LongTensor([[1] * (lg + 2) + [0] * (max_size - lg) for lg in sizes])
+        # var_start = torch.LongTensor(starts)
+
+        # Use the updated version of transformers tokenizer that does all of the above for us
+        # print("\nTokenizing: ", utterances)
         lengths = [len(s) for s in utterances]
+        utterances = [
+            " ".join(tokens) for tokens in utterances
+        ]  # we have to join them otherwise RoBERTa will break. An idiosyncrasy of 3.5.1
+        out = self._lexical_vocab._tokenizer(
+            utterances,
+            is_split_into_words=False,
+            max_length=512,
+            truncation=True,
+            padding=True,
+            return_tensors="pt",
+            return_token_type_ids=True,
+            return_attention_mask=True,
+            return_offsets_mapping=True,
+        )
+        # print("\noutput:", out.keys())
+        var_unit = out["input_ids"]
+        batch_size, max_size = var_unit.shape
+        print(f'\nBatch size, seq size: {var_unit.shape}', flush=True)
+        if max_size > 190 and batch_size > 1:
+            # The gpu can't handle very long sequences of size for batches larger than one
+            # The N^2 causes Cuda OOM issues, so in these cases we back off to smaller batch sizes.
+            raise BatchTooLargeException()
+
         max_len = max(lengths)
-        pieces = iterative_support(self._lexical_vocab.tokenize, utterances)
-        units, positions = [], []
+        attn_mask = out["attention_mask"]
+        offset_mappings = out["offset_mapping"]
+        var_start = []
+        for utt_i, (utterance, offset_mapping) in enumerate(zip(utterances, offset_mappings)):
+            tokens = utterance.split()
+            tokidx2bpeidx = self._align_bpes(tokens, offset_mapping.numpy().tolist())
+            L = len(tokens)
+            if len(tokidx2bpeidx) < L:
+                raise BatchTooLongException()
+                # print(f'WARNING: Sentence is too long with -- chopping it off at max size')
+                # print('len toks', len(tokens))
+                # print("tok2bpe", tokidx2bpeidx)
+                # L = len(tokidx2bpeidx)
+                # lengths[utt_i] = L
+            var_start.append(
+                [tokidx2bpeidx[i][0] for i in range(L)] + [max_size - 1] * (max_size - L)
+            )
+        var_start = torch.LongTensor(var_start)
 
-        for tokens in pieces:
-            units.append(flat_list(tokens))
-            cum_list = np.cumsum([len(p) for p in tokens]).tolist()
-            positions.append([0] + cum_list[:-1])
-
-        sizes = [len(u) for u in units]
-        max_size = max(sizes)
-        cls_sign = self._lexical_vocab.CLS_SIGN
-        sep_sign = self._lexical_vocab.SEP_SIGN
-        pad_sign = self._lexical_vocab.PAD_SIGN
-        pad_unit = [[cls_sign] + s + [sep_sign] + [pad_sign] * (max_size - len(s)) for s in units]
-        starts = [[ln + 1 for ln in u] + [max_size + 1] * (max_len - len(u)) for u in positions]
-
-        var_unit = torch.LongTensor([self._lexical_vocab.index(u) for u in pad_unit])
-        attn_mask = torch.LongTensor([[1] * (lg + 2) + [0] * (max_size - lg) for lg in sizes])
-        var_start = torch.LongTensor(starts)
+        # print(f"var_unit: {var_unit.shape}, attn_mask: {attn_mask.shape}, var_start: {var_start.shape}") 
 
         if torch.cuda.is_available():
             var_unit = var_unit.cuda()
             attn_mask = attn_mask.cuda()
             var_start = var_start.cuda()
+
         return var_unit, attn_mask, var_start, lengths
 
     def _pre_process_output(self, entities, lengths):
@@ -104,6 +194,7 @@ class PhraseClassifier(nn.Module):
         return self._criterion(torch.log_softmax(flat_s, dim=-1), targets)
 
     def inference(self, sentences):
+        # print("inference!")
         var_sent, attn_mask, starts, lengths = self._pre_process_input(sentences)
         log_items = self(var_sent, mask_mat=attn_mask, starts=starts)
 
@@ -121,6 +212,7 @@ class PhraseClassifier(nn.Module):
                 for j in range(i, sent_l):
                     if l_mat[i][j] != "O":
                         candidates[-1].append((i, j, l_mat[i][j], v_mat[i][j]))
+                        # print(f"\n\nadd ent {candidates[-1]} for sent len {sent_l}")
 
         entities = []
         for segments in candidates:
@@ -136,21 +228,21 @@ class PhraseClassifier(nn.Module):
                 if not flag:
                     filter_list.append((elem[0], elem[1], elem[2]))
             entities.append(sorted(filter_list, key=lambda e: e[0]))
+        # print("entities", entities)
         return entities
 
 
 class BERT(nn.Module):
-
     def __init__(self, source_path):
         super(BERT, self).__init__()
-        self._repr_model = BertModel.from_pretrained(source_path)
+        self.bert = AutoModel.from_pretrained(source_path)
 
     @property
     def dimension(self):
         return 768
 
-    def forward(self, var_h, attn_mask, starts):
-        all_hidden, _ = self._repr_model(var_h, attention_mask=attn_mask, output_all_encoded_layers=False)
+    def forward(self, input_ids, attn_mask, starts):
+        all_hidden = self.bert(input_ids=input_ids, attention_mask=attn_mask)[0]
 
         batch_size, _, hidden_dim = all_hidden.size()
         _, unit_num = starts.size()
@@ -159,13 +251,10 @@ class BERT(nn.Module):
 
 
 class MLP(nn.Module):
-
     def __init__(self, input_dim, hidden_dim, output_dim, dropout_rate):
         super(MLP, self).__init__()
 
-        self._activator = nn.Sequential(nn.Linear(input_dim, hidden_dim),
-                                        nn.Tanh(),
-                                        nn.Linear(hidden_dim, output_dim))
+        self._activator = nn.Sequential(nn.Linear(input_dim, hidden_dim), nn.Tanh(), nn.Linear(hidden_dim, output_dim))
         self._dropout = nn.Dropout(dropout_rate)
 
     def forward(self, var_h):

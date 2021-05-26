@@ -1,0 +1,12 @@
+nohup: ignoring input
+
+DO ned
+python main.py -dd data/conll2003/ned -cd save_ned -rd resource --model-name bert-base-multilingual-cased --batch_size 8 &> runs/21-05-17_run_ned_full.log
+python main.py -dd data/conll2003/ned_P-1000 -cd save_ned_P-1000 -rd resource --model-name bert-base-multilingual-cased --batch_size 8 -en 20 &> runs/21-05-17_run_ned_P-1000.log
+python main.py -dd data/conll2003/ned_r0.5_p0.9 -cd save_ned_r0.5_p0.9 -rd resource --model-name bert-base-multilingual-cased --batch_size 8 -en 20 &> runs/21-05-17_run_ned_r0.5_p0.9.log
+
+DO arabic
+python main.py -dd data/ontonotes5/arabic -cd save_arabic -rd resource --model-name bert-base-multilingual-cased --batch_size 8 &> runs/21-05-17_run_arabic_full.log
+python main.py -dd data/ontonotes5/arabic_P-1000 -cd save_arabic_P-1000 -rd resource --model-name bert-base-multilingual-cased --batch_size 8 -en 20 &> runs/21-05-17_run_arabic_P-1000.log
+python main.py -dd data/ontonotes5/arabic_r0.5_p0.9 -cd save_arabic_r0.5_p0.9 -rd resource --model-name bert-base-multilingual-cased --batch_size 8 -en 20 &> runs/21-05-17_run_arabic_r0.5_p0.9.log
+run_stuff.sh: line 104: 10841 Killed                  python main.py -dd data/ontonotes5/${lang}_r0.5_p0.9 -cd save_${lang}_r0.5_p0.9 -rd resource --model-name $model_name --batch_size $batch_size &> runs/21-05-17_run_${lang}_r0.5_p0.9.log
