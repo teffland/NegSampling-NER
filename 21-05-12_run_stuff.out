@@ -1,0 +1,162 @@
+nohup: ignoring input
+
+DO eng
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8834it [00:00, 88338.82it/s]Processing datum: 14041it [00:00, 87740.51it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3250it [00:00, 84398.70it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3453it [00:00, 87262.87it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 12765it [00:00, 127643.73it/s]Processing datum: 14041it [00:00, 127688.20it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3250it [00:00, 84183.96it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3453it [00:00, 89634.30it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 9885it [00:00, 98828.42it/s]Processing datum: 14041it [00:00, 99182.56it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3250it [00:00, 84247.96it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3453it [00:00, 88658.71it/s]
+All done
+python main.py -dd data/conll2003/eng -cd save -rd resource --model-name roberta-base --batch_size 8 &> 21-05-12_run_eng_full.log
+python main.py -dd data/conll2003/eng_P-1000 -cd save -rd resource --model-name roberta-base --batch_size 8 -en 20 &> 21-05-12_run_eng_P-1000.log
+python main.py -dd data/conll2003/eng_r0.5_p0.9 -cd save -rd resource --model-name roberta-base --batch_size 8 -en 20 &> 21-05-12_run_eng_r0.5_p0.9.log
+
+DO deu
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8368it [00:00, 83668.31it/s]Processing datum: 12100it [00:00, 83269.75it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 74950.74it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2970it [00:00, 80379.17it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 10617it [00:00, 106165.55it/s]Processing datum: 12100it [00:00, 107274.83it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 75604.03it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2970it [00:00, 80622.63it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 9461it [00:00, 94608.29it/s]Processing datum: 12100it [00:00, 95332.97it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 72267.19it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2970it [00:00, 78657.10it/s]
+All done
+python main.py -dd data/conll2003/deu -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 &> 21-05-12_run_deu_full.log
+python main.py -dd data/conll2003/deu_P-1000 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_deu_P-1000.log
+python main.py -dd data/conll2003/deu_r0.5_p0.9 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_deu_r0.5_p0.9.log
+
+DO esp
+Processing datum: 0it [00:00, ?it/s]Processing datum: 5728it [00:00, 57276.91it/s]Processing datum: 8316it [00:00, 45026.80it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1908it [00:00, 62215.61it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1512it [00:00, 55553.70it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8316it [00:00, 83638.66it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1908it [00:00, 61787.14it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1512it [00:00, 56303.88it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 6529it [00:00, 65287.10it/s]Processing datum: 8316it [00:00, 65584.18it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1908it [00:00, 61777.12it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1512it [00:00, 54734.28it/s]
+All done
+python main.py -dd data/conll2003/esp -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 &> 21-05-12_run_esp_full.log
+python main.py -dd data/conll2003/esp_P-1000 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_esp_P-1000.log
+python main.py -dd data/conll2003/esp_r0.5_p0.9 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_esp_r0.5_p0.9.log
+
+DO ned
+Processing datum: 0it [00:00, ?it/s]Processing datum: 10274it [00:00, 102739.36it/s]Processing datum: 15693it [00:00, 104715.47it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 98352.66it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 5173it [00:00, 100396.71it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 12205it [00:00, 121737.81it/s]Processing datum: 15693it [00:00, 124544.63it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 99840.26it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 5173it [00:00, 105293.69it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 10760it [00:00, 107587.53it/s]Processing datum: 15693it [00:00, 108190.42it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2858it [00:00, 98816.42it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 5173it [00:00, 101921.90it/s]
+All done
+python main.py -dd data/conll2003/ned -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 &> 21-05-12_run_ned_full.log
+python main.py -dd data/conll2003/ned_P-1000 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_ned_P-1000.log
+python main.py -dd data/conll2003/ned_r0.5_p0.9 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_ned_r0.5_p0.9.log
+
+DO english
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8277it [00:00, 82764.75it/s]Processing datum: 19336it [00:00, 89520.28it/s]Processing datum: 27976it [00:00, 88560.16it/s]Processing datum: 36687it [00:00, 88117.99it/s]Processing datum: 43871it [00:00, 82509.23it/s]Processing datum: 52643it [00:00, 84004.92it/s]Processing datum: 60167it [00:00, 69136.42it/s]Processing datum: 67881it [00:00, 71356.34it/s]Processing datum: 75525it [00:00, 72805.39it/s]Processing datum: 82122it [00:01, 72888.23it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8817it [00:00, 88161.89it/s]Processing datum: 12678it [00:00, 81984.11it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8605it [00:00, 85345.63it/s]Processing datum: 8968it [00:00, 83919.58it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 11259it [00:00, 112582.86it/s]Processing datum: 23637it [00:00, 115722.39it/s]Processing datum: 33336it [00:00, 109381.64it/s]Processing datum: 45700it [00:00, 113297.94it/s]Processing datum: 54746it [00:00, 98898.30it/s] Processing datum: 65602it [00:00, 101610.29it/s]Processing datum: 76436it [00:00, 103538.72it/s]Processing datum: 82122it [00:00, 105977.52it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 9005it [00:00, 90046.87it/s]Processing datum: 12678it [00:00, 83964.23it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8555it [00:00, 85547.63it/s]Processing datum: 8968it [00:00, 83553.10it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 9405it [00:00, 94046.28it/s]Processing datum: 20859it [00:00, 97588.91it/s]Processing datum: 30165it [00:00, 96183.58it/s]Processing datum: 40402it [00:00, 97958.70it/s]Processing datum: 47968it [00:00, 89529.61it/s]Processing datum: 56409it [00:00, 87925.58it/s]Processing datum: 65000it [00:00, 87306.82it/s]Processing datum: 73041it [00:00, 72594.16it/s]Processing datum: 81192it [00:00, 75056.84it/s]Processing datum: 82122it [00:00, 84059.93it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 9019it [00:00, 90170.95it/s]Processing datum: 12678it [00:00, 84415.96it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 8627it [00:00, 86268.64it/s]Processing datum: 8968it [00:00, 84899.61it/s]
+All done
+python main.py -dd data/ontonotes5/english -cd save -rd resource --model-name roberta-base --batch_size 8 &> 21-05-12_run_english_full.log
+python main.py -dd data/ontonotes5/english_P-1000 -cd save -rd resource --model-name roberta-base --batch_size 8 -en 20 &> 21-05-12_run_english_P-1000.log
+python main.py -dd data/ontonotes5/english_r0.5_p0.9 -cd save -rd resource --model-name roberta-base --batch_size 8 -en 20 &> 21-05-12_run_english_r0.5_p0.9.log
+
+DO chinese
+Processing datum: 0it [00:00, ?it/s]Processing datum: 4982it [00:00, 49817.32it/s]Processing datum: 13886it [00:00, 57402.83it/s]Processing datum: 18548it [00:00, 53677.05it/s]Processing datum: 22711it [00:00, 49386.73it/s]Processing datum: 27923it [00:00, 50174.76it/s]Processing datum: 35233it [00:00, 55383.87it/s]Processing datum: 37557it [00:00, 52945.38it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 6217it [00:00, 63850.08it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 4293it [00:00, 55721.74it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 7795it [00:00, 77947.84it/s]Processing datum: 16968it [00:00, 81625.83it/s]Processing datum: 23457it [00:00, 75607.44it/s]Processing datum: 28851it [00:00, 67474.64it/s]Processing datum: 37357it [00:00, 71931.34it/s]Processing datum: 37557it [00:00, 74525.90it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 6217it [00:00, 63745.81it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 4293it [00:00, 56415.54it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 6010it [00:00, 60098.91it/s]Processing datum: 14894it [00:00, 66558.61it/s]Processing datum: 19287it [00:00, 57649.41it/s]Processing datum: 24226it [00:00, 54894.92it/s]Processing datum: 31434it [00:00, 59123.04it/s]Processing datum: 37557it [00:00, 62883.57it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 6217it [00:00, 63300.45it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 4293it [00:00, 56104.40it/s]
+All done
+python main.py -dd data/ontonotes5/chinese -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 &> 21-05-12_run_chinese_full.log
+python main.py -dd data/ontonotes5/chinese_P-1000 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_chinese_P-1000.log
+python main.py -dd data/ontonotes5/chinese_r0.5_p0.9 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_chinese_r0.5_p0.9.log
+
+DO arabic
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2229it [00:00, 22283.81it/s]Processing datum: 4481it [00:00, 22351.74it/s]Processing datum: 6856it [00:00, 22752.78it/s]Processing datum: 7402it [00:00, 22991.54it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 950it [00:00, 23851.67it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1003it [00:00, 26047.06it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 3051it [00:00, 30505.37it/s]Processing datum: 6021it [00:00, 30256.99it/s]Processing datum: 7402it [00:00, 30403.27it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 950it [00:00, 24262.99it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1003it [00:00, 25708.18it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 2550it [00:00, 25488.84it/s]Processing datum: 5037it [00:00, 25299.31it/s]Processing datum: 7402it [00:00, 25842.84it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 950it [00:00, 23623.30it/s]
+All done
+Processing datum: 0it [00:00, ?it/s]Processing datum: 1003it [00:00, 26275.31it/s]
+All done
+python main.py -dd data/ontonotes5/arabic -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 &> 21-05-12_run_arabic_full.log
+python main.py -dd data/ontonotes5/arabic_P-1000 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_arabic_P-1000.log
+python main.py -dd data/ontonotes5/arabic_r0.5_p0.9 -cd save -rd resource --model-name bert-base-multilingual-cased --batch_size 6 -en 20 &> 21-05-12_run_arabic_r0.5_p0.9.log
